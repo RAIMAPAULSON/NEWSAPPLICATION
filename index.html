@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Newspaper Application</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        #news-container {
+            max-width: 800px;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            background: linear-gradient(135deg, #00feba, #5b548a);
+
+        }
+
+        .headline {
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 10px;
+        }
+
+        h1 {
+            margin-top: 0;
+            text-align: center;
+            color: #333;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 8px 80px 8px 8px;
+            box-sizing: border-box;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            margin-bottom: 10px;
+        }
+
+
+        button[type="submit"] {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+
+        #headlines {
+            margin-top: 20px;
+        }
+
+        .source {
+            font-style: italic;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="news-container">
+        <h1>Top Headlines</h1>
+        <form id="search-form">
+            <label for="search">Search Country:</label>
+            <input type="text" id="search" name="search" placeholder="Enter country...">
+            <button type="submit">Search</button>
+        </form>
+        <div id="headlines"></div>
+    </div>
+
+    <script>
+        const searchForm = document.getElementById('search-form');
+        const headlinesContainer = document.getElementById('headlines');
+
+        searchForm.addEventListener('submit', async function (event) {
+            event.preventDefault();
+
+            const country = searchForm.search.value.trim().toLowerCase();
+            if (country) {
+                await fetchHeadlines(country);
+            }
+        });
+
+        async function fetchHeadlines(country) {
+            const apiKey = '3651c046804c40b2bc6c9aeb7bb072f3';
+            const apiUrl = `https://newsapi.org/v2/top-headlines?country=${country}&apiKey=${apiKey}`;
+
+            try {
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+
+                if (data.status === 'ok') {
+            
+                    if (data.totalResults > 0) {
+                        displayHeadlines(data.articles);
+                    } else {
+                        headlinesContainer.innerHTML = `<p>No headlines found for the specified country.</p>`;
+                    }
+                } else {
+                    throw new Error(data.message);
+                }
+            } catch (error) {
+                console.error(error.message);
+                headlinesContainer.innerHTML = `<p>Error fetching headlines. Please try again later.</p>`;
+            }
+        }
+
+        function displayHeadlines(articles) {
+            let headlinesHTML = '';
+            articles.slice(0, 5).forEach(article => {
+                const { title, source, publishedAt } = article;
+                headlinesHTML += `
+                    <div class="headline">
+                        <h2>${title}</h2>
+                        <p class="source">Source: ${source.name}</p>
+                        <p>Published At: ${new Date(publishedAt).toLocaleString()}</p>
+                    </div>
+                `;
+            });
+            headlinesContainer.innerHTML = headlinesHTML;
+        }
+    </script>
+</body>
+
+</html>
